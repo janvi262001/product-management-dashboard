@@ -21,10 +21,6 @@ export default function Table({ currentProducts, handleEditProduct,setProducts,p
     }
   };
 
-  const handleEdit = (product) => {
-    console.log("Edit product:", product);
-  };
-
   return (
     <>
       <table className="min-w-full border-collapse">
