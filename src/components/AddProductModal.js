@@ -1,6 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { createProduct } from "../api/product.service";
+import { createProduct,updateProduct } from "../api/product.service";
+import { useEffect, useState } from "react";
 
 const ProductSchema = Yup.object({
   title: Yup.string().required("Title is required"),
@@ -15,7 +16,44 @@ const ProductSchema = Yup.object({
     .required("Image URL is required"),
 });
 
-export default function AddProductModal({ onClose, onSuccess }) {
+export default function AddProductModal({ onClose, onSuccess, editProduct, setProducts,products }) {
+  console.log("editProduct",editProduct);
+  const [initialValues, setInitialValues] = useState({
+            id: null,
+            title: "",
+            price: "",
+            description: "",
+            category: "",
+            image: "",
+          });
+
+  useEffect(() => {
+    if (editProduct) {
+      setInitialValues(editProduct);
+    }
+  },[editProduct]);     
+  
+  const addOrEditProduct = async (values,setSubmitting) => {
+    try {
+      if(values?.id){
+        const result=await updateProduct(values.id, values);
+        setProducts(prev =>
+        prev.map(product =>
+          product.id === values.id ? result : product
+        )
+      );
+      }else{
+        const result = await createProduct(values);
+        setProducts(prev => [...prev, result]);
+      }
+      console.log("closing modal");
+      onClose();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-lg">
@@ -29,27 +67,12 @@ export default function AddProductModal({ onClose, onSuccess }) {
 
         {/* Form */}
         <Formik
-          initialValues={{
-            title: "",
-            price: "",
-            description: "",
-            category: "",
-            image: "",
-          }}
+          enableReinitialize
+          initialValues={initialValues}
           validationSchema={ProductSchema}
-          onSubmit={async (values, { setSubmitting }) => {
-            try {
-              await createProduct(values);
-              onSuccess();
-              onClose();
-            } catch (error) {
-              console.error(error);
-            } finally {
-              setSubmitting(false);
-            }
-          }}
+          onSubmit={(values, { setSubmitting }) =>addOrEditProduct(values, setSubmitting)}
         >
-          {({ isSubmitting }) => (
+          {({values, isSubmitting }) => (
             <Form className="p-4 space-y-4">
               {/* Title */}
               <div>
@@ -143,7 +166,8 @@ export default function AddProductModal({ onClose, onSuccess }) {
                   disabled={isSubmitting}
                   className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Saving..." : "Add Product"}
+                  {isSubmitting ? "Saving..." : 
+                  (values?.id ? "Update Product" : "Add Product")}
                 </button>
               </div>
             </Form>

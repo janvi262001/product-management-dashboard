@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getProducts } from "../api/product.service";
 import ProductTable from "../components/Table";
 import AddProductModal from "../components/AddProductModal";
+import { TbShoppingBagSearch } from "react-icons/tb";
+import { Link } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -10,7 +12,11 @@ export default function ProductManagement() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openAddModal, setOpenAddModal] = useState(false);
-
+  const [editProduct, setEditProduct] = useState(null);
+  const handleEditProduct = (product) => {
+    setEditProduct(product);
+    setOpenAddModal(true);
+  };
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -40,12 +46,19 @@ export default function ProductManagement() {
         {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
           <h1 className="text-xl font-semibold">Product Management</h1>
-          <button
-            onClick={() => setOpenAddModal(true)}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-          >
-            + Add Product
-          </button>
+          <div className="flex gap-2">
+<Link to="/shop"
+              className="flex gap-2 items-center px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              <TbShoppingBagSearch /> <span>My shop</span>
+            </Link>
+            <button
+              onClick={() => setOpenAddModal(true)}
+              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              + Add Product
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -56,6 +69,9 @@ export default function ProductManagement() {
               <ProductTable
                 currentProducts={currentProducts}
                 fetchProducts={fetchProducts}
+                handleEditProduct={handleEditProduct}
+                setProducts={setProducts}
+                products={products}
               />
             </div>
 
@@ -88,8 +104,14 @@ export default function ProductManagement() {
       {/* Add Product Modal */}
       {openAddModal && (
         <AddProductModal
-          onClose={() => setOpenAddModal(false)}
+          onClose={() => {
+            setEditProduct(null);
+            setOpenAddModal(false);
+          }}
           onSuccess={fetchProducts}
+          editProduct={editProduct}
+          setProducts={setProducts}
+          products={products}
         />
       )}
     </div>
