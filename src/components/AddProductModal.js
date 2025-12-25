@@ -2,6 +2,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { createProduct,updateProduct } from "../api/product.service";
 import { useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 const ProductSchema = Yup.object({
   title: Yup.string().required("Title is required"),
@@ -37,6 +38,7 @@ export default function AddProductModal({ onClose, onSuccess, editProduct, setPr
     try {
       if(values?.id){
         const result=await updateProduct(values.id, values);
+        toast.success("Product updated successfully");
         setProducts(prev =>
         prev.map(product =>
           product.id === values.id ? result : product
@@ -44,7 +46,8 @@ export default function AddProductModal({ onClose, onSuccess, editProduct, setPr
       );
       }else{
         const result = await createProduct(values);
-        setProducts(prev => [...prev, result]);
+        toast.success("Product added successfully");
+        setProducts(prev => [result,...prev]);
       }
       console.log("closing modal");
       onClose();

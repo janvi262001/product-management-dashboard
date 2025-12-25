@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Modal from "react-modal";
 import { BrowserRouter } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
 Modal.setAppElement("#root"); // ✅ Important for accessibility
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

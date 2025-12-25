@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deleteProduct } from "../api/product.service";
 import ConfirmModal from "./ConfirmModal";
+import { toast } from 'react-toastify';
 
 export default function Table({ currentProducts, handleEditProduct,setProducts,products}) {
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -14,6 +15,7 @@ export default function Table({ currentProducts, handleEditProduct,setProducts,p
   const handleConfirmDelete = async () => {
     if (selectedProductId !== null) {
       await deleteProduct(selectedProductId);
+      toast.success("Product deleted successfully");
       setProducts(products.filter(product => product.id !== selectedProductId));
       // fetchProducts();
       setOpenConfirm(false);
